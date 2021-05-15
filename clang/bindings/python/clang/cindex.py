@@ -3316,6 +3316,28 @@ class Token(Structure):
 
         return cursor
 
+class Rewriter(ClangObject):
+
+    @staticmethod
+    def create(tu):
+        return Rewriter(conf.lib.clang_CXRewriter_create(tu))
+
+    @property
+    def contents(self):
+        return conf.lib.clang_CXRewriter_getMainFileContents(self)
+
+    def insertBefore(self, loc, text, indent=False):
+        conf.lib.clang_CXRewriter_insertTextBefore(self, loc, text, indent)
+
+    def insertAfter(self, loc, text, indent=False):
+        conf.lib.clang_CXRewriter_insertTextAfter(self, loc, text, indent)
+
+    def removeText(self, loc):
+        conf.lib.clang_CXRewriter_removeText(self, loc)
+
+    def __del__(self):
+        conf.lib.clang_CXRewriter_dispose(self)
+
 # Now comes the plumbing to hook up the C library.
 
 # Register callback types in common container.
@@ -3440,6 +3462,27 @@ functionList = [
   ("clang_CXXRecord_isAbstract",
    [Cursor],
    bool),
+
+  ("clang_CXRewriter_create",
+    [TranslationUnit],
+    c_object_p),
+
+  ("clang_CXRewriter_dispose",
+    [Rewriter]),
+
+  ("clang_CXRewriter_getMainFileContents",
+    [Rewriter],
+    _CXString,
+    _CXString.from_result),
+
+  ("clang_CXRewriter_insertTextBefore",
+    [Rewriter, SourceLocation, c_interop_string, c_bool]),
+
+  ("clang_CXRewriter_insertTextAfter",
+    [Rewriter, SourceLocation, c_interop_string, c_bool]),
+
+  ("clang_CXRewriter_removeText",
+    [Rewriter, SourceRange]),
 
   ("clang_EnumDecl_isScoped",
    [Cursor],

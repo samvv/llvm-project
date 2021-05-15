@@ -25,22 +25,40 @@ typedef void *CXRewriter;
 CINDEX_LINKAGE CXRewriter clang_CXRewriter_create(CXTranslationUnit TU);
 
 /**
- * Insert the specified string at the specified location in the original buffer.
+ * Get the contents of the main file as a string.
  */
-CINDEX_LINKAGE void clang_CXRewriter_insertTextBefore(CXRewriter Rew, CXSourceLocation Loc,
-                                           const char *Insert);
+CXString clang_CXRewriter_getMainFileContents(CXRewriter Rew);
+
+/**
+ * Insert the given string at the specified location in the original buffer.
+ */
+CINDEX_LINKAGE void clang_CXRewriter_insertTextBefore(CXRewriter Rew,
+                                                      CXSourceLocation Loc,
+                                                      const char *Insert,
+                                                      bool IndentNewLines);
+
+/**
+ * Insert the given string right after the specified location in the original
+ * buffer.
+ */
+CINDEX_LINKAGE void clang_CXRewriter_insertTextAfter(CXRewriter Rew,
+                                                     CXSourceLocation Loc,
+                                                     const char *Insert,
+                                                     bool IndentNewLines);
 
 /**
  * Replace the specified range of characters in the input with the specified
  * replacement.
  */
-CINDEX_LINKAGE void clang_CXRewriter_replaceText(CXRewriter Rew, CXSourceRange ToBeReplaced,
-                                      const char *Replacement);
+CINDEX_LINKAGE void clang_CXRewriter_replaceText(CXRewriter Rew,
+                                                 CXSourceRange ToBeReplaced,
+                                                 const char *Replacement);
 
 /**
  * Remove the specified range.
  */
-CINDEX_LINKAGE void clang_CXRewriter_removeText(CXRewriter Rew, CXSourceRange ToBeRemoved);
+CINDEX_LINKAGE void clang_CXRewriter_removeText(CXRewriter Rew,
+                                                CXSourceRange ToBeRemoved);
 
 /**
  * Save all changed files to disk.

@@ -25,14 +25,24 @@ CXRewriter clang_CXRewriter_create(CXTranslationUnit TU) {
 }
 
 void clang_CXRewriter_insertTextBefore(CXRewriter Rew, CXSourceLocation Loc,
-                            const char *Insert) {
+                                       const char *Insert,
+                                       bool IndentNewLines) {
   assert(Rew);
   clang::Rewriter &R = *reinterpret_cast<clang::Rewriter *>(Rew);
-  R.InsertTextBefore(clang::cxloc::translateSourceLocation(Loc), Insert);
+  R.InsertText(clang::cxloc::translateSourceLocation(Loc), Insert, false,
+               IndentNewLines);
+}
+
+void clang_CXRewriter_insertTextAfter(CXRewriter Rew, CXSourceLocation Loc,
+                                      const char *Insert, bool IndentNewLines) {
+  assert(Rew);
+  clang::Rewriter &R = *reinterpret_cast<clang::Rewriter *>(Rew);
+  R.InsertText(clang::cxloc::translateSourceLocation(Loc), Insert, true,
+               IndentNewLines);
 }
 
 void clang_CXRewriter_replaceText(CXRewriter Rew, CXSourceRange ToBeReplaced,
-                       const char *Replacement) {
+                                  const char *Replacement) {
   assert(Rew);
   clang::Rewriter &R = *reinterpret_cast<clang::Rewriter *>(Rew);
   R.ReplaceText(clang::cxloc::translateCXRangeToCharRange(ToBeReplaced),
@@ -49,6 +59,15 @@ int clang_CXRewriter_overwriteChangedFiles(CXRewriter Rew) {
   assert(Rew);
   clang::Rewriter &R = *reinterpret_cast<clang::Rewriter *>(Rew);
   return R.overwriteChangedFiles();
+}
+
+CXString clang_CXRewriter_getMainFileContents(CXRewriter Rew) {
+  assert(Rew);
+  clang::Rewriter &R = *reinterpret_cast<clang::Rewriter *>(Rew);
+  std::string Res;
+  llvm::raw_string_ostream Out(Res);
+  R.getEditBuffer(R.getSourceMgr().getMainFileID()).write(Out);
+  return clang::cxstring::createDup(Res);
 }
 
 void clang_CXRewriter_writeMainFileToStdOut(CXRewriter Rew) {
